@@ -51,14 +51,10 @@ export function calculateRiskScore(assessment: Assessment): ScoringResult {
   reasons.push(`Revenue band ${assessment.revenueBand} (+${revenuePoints} points)`)
 
   // Multiple high-severity factors
-  const severeFact
-
-ors = assessment.riskFactors.filter((f) =>
+  const severeFactors = assessment.riskFactors.filter((f) =>
     ['Regulatory Issues', 'Offshore Entities', 'High Cash Transactions'].includes(f)
   )
-  if (severeFact
-
-ors.length >= 2) {
+  if (severeFactors.length >= 2) {
     score += 10
     redFlags.push('Multiple severe risk factors identified')
   }
