@@ -9,37 +9,51 @@ Write-Host ""
 
 # Check Node.js
 Write-Host "Checking Node.js..." -ForegroundColor Yellow
-$nodeVersion = node --version 2>$null
-if ($LASTEXITCODE -ne 0) {
+try {
+    $nodeVersion = node --version 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "Node.js not found"
+    }
+    Write-Host "✓ Node.js $nodeVersion" -ForegroundColor Green
+} catch {
     Write-Host "ERROR: Node.js is not installed!" -ForegroundColor Red
     Write-Host "Please install Node.js from https://nodejs.org/" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ Node.js $nodeVersion" -ForegroundColor Green
 
 # Check npm
 Write-Host "Checking npm..." -ForegroundColor Yellow
-$npmVersion = npm --version 2>$null
-if ($LASTEXITCODE -ne 0) {
+try {
+    $npmVersion = npm --version 2>$null
+    if ($LASTEXITCODE -ne 0) {
+        throw "npm not found"
+    }
+    Write-Host "✓ npm $npmVersion" -ForegroundColor Green
+} catch {
     Write-Host "ERROR: npm is not installed!" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ npm $npmVersion" -ForegroundColor Green
 
 # Check Power Apps CLI
 Write-Host "Checking Power Apps CLI..." -ForegroundColor Yellow
-$pacVersion = pac --version 2>$null
-if ($LASTEXITCODE -ne 0) {
+try {
+    pac --version 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) {
+        throw "pac not found"
+    }
+    Write-Host "✓ Power Apps CLI installed" -ForegroundColor Green
+} catch {
     Write-Host "ERROR: Power Apps CLI (pac) is not installed!" -ForegroundColor Red
     Write-Host "Please install from: https://learn.microsoft.com/power-platform/developer/cli/introduction" -ForegroundColor Red
     exit 1
 }
-Write-Host "✓ Power Apps CLI installed" -ForegroundColor Green
 
 # Check authentication
 Write-Host "Checking authentication..." -ForegroundColor Yellow
-pac auth list >$null 2>&1
-if ($LASTEXITCODE -ne 0) {
+try {
+    pac auth list 2>$null | Out-Null
+    Write-Host "✓ Authentication configured" -ForegroundColor Green
+} catch {
     Write-Host "WARNING: No authentication profile found!" -ForegroundColor Yellow
     Write-Host "Please run: pac auth create" -ForegroundColor Yellow
     $response = Read-Host "Continue anyway? (y/n)"
@@ -47,10 +61,9 @@ if ($LASTEXITCODE -ne 0) {
         exit 1
     }
 }
-Write-Host "✓ Authentication configured" -ForegroundColor Green
 
 # Install dependencies if node_modules doesn't exist
-if (-not (Test-Path "node_modules")) {
+if (-Not (Test-Path "node_modules")) {
     Write-Host ""
     Write-Host "Installing dependencies..." -ForegroundColor Yellow
     npm install
